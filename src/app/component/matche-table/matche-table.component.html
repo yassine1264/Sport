@@ -1,0 +1,35 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">score one</th>
+            <th scope="col">score two</th>
+            <th scope="col">team one</th>
+            <th scope="col">team two</th>
+            <th scope="col">Result</th>
+            <th scope="col">action</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let elt of matchesTab">
+            <th>{{elt._id}}</th>
+            <td>{{elt.scoreOne}}</td>
+            <td>{{elt.scoreTwo}}</td>
+            <td>{{elt.teamOne}}</td>
+            <td>{{elt.teamTwo}}</td>
+            <td [ngStyle]="{color : scoreResult(elt.scoreOne,elt.scoreTwo,elt.teamOne)[1]} ">
+                {{scoreResult(elt.scoreOne,elt.scoreTwo,elt.teamOne)[0]}}</td>
+            <td>
+                <button class="btn btn-success" (click)="goToInfo(elt._id)">display</button>
+                <button class="btn btn-info" (click)="goToeditMatch (elt._id)" >edit</button>
+                <button class="btn btn-danger" (click)="deleteMatch(elt._id)">delete</button>
+            </td>
+
+
+        </tr>
+
+
+    </tbody>
+</table>
