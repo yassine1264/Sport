@@ -15,21 +15,21 @@ export class EditPlayerComponent implements OnInit {
 
   constructor(private playerService: PlayerService,
     private activatedroute: ActivatedRoute,
-  private router:Router) { }
+    private router: Router) { }
   ngOnInit(): void {
     this.id = this.activatedroute.snapshot.params['id'];
     this.playerService.getPlayerById(this.id).subscribe(
-      (data)=>{
-       this.player = data.player;
+      (data) => {
+        this.player = data.player;
       }
     );
   }
   editPlayer() {
     console.log('here is player object', this.player);
     this.playerService.editPlayer(this.player).subscribe(
-      (response)=>{
+      (response) => {
         console.log('here response from BE ', response.isEdited);
-this.router.navigate(['admin']);
+        this.router.navigate(['admin']);
       }
     );
 

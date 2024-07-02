@@ -5,11 +5,14 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class UserService {
-  userURL: string = 'http//localhost:3000/api/users';
+  userURL: string = 'http://localhost:3000/api/users';
 
   constructor(private http: HttpClient) { }
+
   login(user: any) { }
 
-  signup(user: any) { }
+  signup(user: any) {
+    return this.http.post<{ isAdded: boolean }>(this.userURL, user);
+  }
 
 }

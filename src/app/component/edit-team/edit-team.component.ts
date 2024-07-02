@@ -20,9 +20,9 @@ export class EditTeamComponent implements OnInit {
   ngOnInit(): void {
     
     this.id = this.activatedroute.snapshot.params['id'];
-    this.tService.getTeamById(this.id).subscribe((data => {
+    this.tService.getTeamById(this.id).subscribe((data) => {
       this.team = data.team;
-    }));
+    });
 
   }
   editTeam() {

@@ -7,8 +7,12 @@ const bodyParser = require("body-parser");
 
 //import mongoose module
 const mongoose = require("mongoose");
+
 //sportDB=> DataBase name
 mongoose.connect('mongodb://127.0.0.1:27017/sportDB');
+
+//import bcrypt module
+const bcrypt = require("bcrypt");
 
 
 /***************Express Application ************** */
@@ -113,15 +117,20 @@ app.post("/api/matches", (req, res) => {
 app.put("/api/matches", (req, res) => {
     //instructions
     console.log("Here into BL:Edit Match", req.body);
-    for (let i = 0; i < matchesTab.length; i++) {
-        if (matchesTab[i].id == req.body.id) {
-            matchesTab[i] = req.body;
-            break;
+    Match.updateOne({ _id: req.body._id }, req.body).then(
+        (response) => {
+            console.log("here update response", response);
+            if (response.nModified == 1) {
+                res.json({ isEdited: "Success" })
 
-        }
 
-    }
-    res.json({ isEdited: "Success" })
+            } else {
+                res.json({ isEdited: "echec" })
+
+            }
+        })
+
+
 
 });
 
@@ -139,18 +148,20 @@ app.get("/api/matches", (req, res) => {
 app.delete("/api/matches/:id", (req, res) => {
     //instructions
     console.log("Here into BL:Delete Match By ID", req.params.id);
-    for (let i = 0; i < matchesTab.length; i++) {
-        if (matchesTab[i].id == req.params.id) {
-            matchesTab.splice(i, 1);
-            break;
+    Match.deleteOne({ _id: req.params.id }).then((deleteResult) => {
+        console.log("here delete result", deleteResult);
+        if (deleteResult.deletedCount == 1) {
+            res.json({ isDeleted: true });
 
-
+        } else {
+            res.json({ isDeleted: false });
         }
-    }
-    res.json({ isDeleted: true });
 
+    });
 
 });
+
+
 //business Logic: search Matches By Scores
 app.post("/api/matches/search", (req, res) => {
     //instructions
@@ -201,15 +212,19 @@ app.post("/api/teams", (req, res) => {
 app.put("/api/teams", (req, res) => {
     //instructions
     console.log("here into BL:Edit Team", req.body);
-    for (let i = 0; i < teamsTab.length; i++) {
-        if (teamsTab[i].id == req.body.id) {
-            teamsTab[i] = req.body;
-            break;
+    Team.updateOne({ _id: req.body._id }, req.body).then(
+        (response) => {
+            console.log("here updateresponse ", response);
+            if (response.nModified == 1) {
+                res.json({ isEdited: "Success" });
 
-        }
 
-    }
-    res.json({ isEdited: "Success" });
+            } else {
+                res.json({ isEdited: "Echec" });
+
+            }
+        })
+
 
 
 });
@@ -229,15 +244,16 @@ app.get("/api/teams", (req, res) => {
 app.delete("/api/teams/:id", (req, res) => {
     //instructions
     console.log("here into BL: Delete Team By ID", req.params.id);
-    for (let i = 0; i < teamsTab.length; i++) {
-        if (teamsTab[i].id == req.params.id) {
-            teamsTab.splice(i, 1);
-            break;
+    Team.deleteOne({ _id: req.params.id }).then((deleteResult) => {
+        console.log("here delete result", deleteResult);
+        if (deleteResult.deletedCount == 1) {
+            res.json({ isDeleted: true });
 
-
+        } else {
+            res.json({ isDeleted: false });
         }
-    }
-    res.json({ isDeleted: true });
+
+    });
 
 
 });
@@ -248,7 +264,7 @@ app.get("/api/teams/:id", (req, res) => {
     console.log("here into BL: Get Team By ID", req.params.id);
     Team.findById(req.params.id).then(
         (doc) => {
-            res.json({ team: doc[i] });
+            res.json({ team: doc });
         }
     )
 
@@ -270,15 +286,21 @@ app.post("/api/players", (req, res) => {
 app.put("/api/players", (req, res) => {
     //instructions
     console.log("here into BL:Edit Player", req.body);
-    for (let i = 0; i < playersTab.length; i++) {
-        if (playersTab[i].id == req.body.id) {
-            playersTab[i] = req.body;
-            break;
+    Player.updateOne({ _id: req.body._id }, req.body).then(
+        (updateResponse) => {
+            console.log("here updateResponse", updateResponse);
+            if (updateResponse.nModified == 1) {
+                res.json({ isEdited: "Success" });
 
+
+
+            } else {
+                res.json({ isEdited: "Echec" });
+
+            }
         }
+    )
 
-    }
-    res.json({ isEdited: "Success" });
 
 
 });
@@ -298,15 +320,16 @@ app.get("/api/players", (req, res) => {
 app.delete("/api/players/:id", (req, res) => {
     //instructions
     console.log("here into BL: Delete Player By ID", req.params.id);
-    for (let i = 0; i < playersTab.length; i++) {
-        if (playersTab[i].id == req.params.id) {
-            playersTab.splice(i, 1);
-            break;
+    Player.deleteOne({ _id: req.params.id }).then((deleteResult) => {
+        console.log("here delete result", deleteResult);
+        if (deleteResult.deletedCount == 1) {
+            res.json({ isDeleted: true });
 
-
+        } else {
+            res.json({ isDeleted: false });
         }
-    }
-    res.json({ isDeleted: true });
+
+    });
 
 
 });
@@ -317,10 +340,65 @@ app.get("/api/players/:id", (req, res) => {
     console.log("here into BL: Get Player By ID", req.params.id);
     Player.findById(req.params.id).then(
         (doc) => {
-            res.json({ player: doc[i] });
+            res.json({ player: doc });
         }
     )
 });
+
+
+
+
+
+
+//business Logic: signup (Add User)
+app.post("/api/users", (req, res) => {
+    console.log("here into BL: signup", req.body);
+    User.findOne({ email: req.body.email }).then(
+        (response) => {
+            console.log("here response", response);
+            if (!response) {
+                bcrypt.hash(req.body.pwd, 10).then(
+                    (cryptedPwd) => {
+                        console.log("here crypted pwd", cryptedPwd);
+                        req.body.pwd = cryptedPwd;
+
+                    }
+                )
+                let user = new User(req.body);
+                user.save();
+                res.json({ isAdded: true });
+
+            } else {
+                res.json({ isAdded: false });
+
+
+            }
+        });
+
+
+
+
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
